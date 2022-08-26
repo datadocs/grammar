@@ -1,0 +1,379 @@
+lexer grammar DatadocsLexer;
+options { caseInsensitive=true; }
+
+/*
+
+1. NAMING CONVENTIONS
+------------------------------------------------------------------
+We will use the following naming conventions for lexical tokens.
+
+1. Keywords will be named exactly as they are spelled in ALL_CAPS.
+   Data types may have multiple aliases and will converge to a single name.
+
+   Examples: SELECT, FROM, WHERE, OR, CONCAT, BOOLEAN ("BOOL" | "BOOLEAN")
+
+
+2. Non-alphabetic mathematical or operator symbols will be CamelCased.
+   If the symbol may have multiple uses (".") its name will be the symbol ("Dot").
+   If the symbol only has one use (">>") its name will be the action ("BitShiftRight")
+
+   Examples: Comma, OpenParen, Tilda, BitwiseOr, Concat ("||")
+
+
+3. All other special tokens will be Camel_Case_With_Underscore.
+
+   Examples: String_Literal, Single_Line_Comment, Identifier (special case: no underscore)
+
+*/
+
+
+/*
+2. OPERATORS & NON-KEYWORD SYMBOLS
+------------------------------------------------------------------
+*/
+OpenParen:                      '(';
+CloseParen:                     ')';
+OpenBracket:                    '[';
+CloseBracket:                   ']';
+OpenBrace:                      '{';
+CloseBrace:                     '}';
+Comma:                          ',';
+Semi:                           ';';
+Colon:                          ':';
+Dot:                            '.';
+Star:                           '*';
+Plus:                           '+';
+Minus:                          '-';
+Slash:                          '/';
+Equals:                         '=';
+NotEquals:                      '!=' | '<>';
+LessThan:                       '<';
+GreaterThan:                    '>';
+LessThanEquals:                 '<=';
+GreaterThanEquals:              '>=';
+TypeCast:                       '::';
+Percent:                        '%';
+BitShiftLeft:                   '<<';
+BitShiftRight:                  '>>';
+BitwiseAnd:                     '&';
+BitwiseXor:                     '^';
+BitwiseOr:                      '|';
+BitwiseNot:                     '~';
+NamedParam:                     ':=' | '=>';
+Concat:                         '||';
+
+
+/*
+3. LITERALS
+------------------------------------------------------------------
+1. NUMBERS are accepted as either an integer, float, or scientific number.
+Hex numbers are not currently supported.
+
+Examples: 1.2, 1, .23, 1., 2e3, 12.3e-12
+
+2. STRING and BYTES may be enclosed with a single or double quote.
+Bytes literals have the same format, prefixed with a 'B' or 'b'.
+They may be escaped with a \ character or a doubling of the quote char.
+Regex used here is: normal* ( special normal* )*
+
+Examples: "hello", 'hello', 'he''llo', b'ab12', B"1\"2\n".
+
+*/
+
+fragment Hex_Literal: ('0x' HexDigit+);
+Integer_Literal: Digit+;
+Float_Literal: (Digit+ Dot Digit* | Dot Digit+) Exponent?;
+
+fragment Exponent: 'E' [+-]? Digit+;
+fragment HexDigit: [0-9a-f];
+fragment Digit: [0-9];
+
+
+String_Literal
+    : DQuoteNewlineEscape
+    | SQuoteNewlineEscape
+    | DQuoteQuoteEscape
+    | SQuoteQuoteEscape
+    ;
+
+Bytes_Literal
+    : 'B' (
+       DQuoteNewlineEscape
+     | SQuoteNewlineEscape
+     | DQuoteQuoteEscape
+     | SQuoteQuoteEscape
+    );
+
+fragment DQuoteNewlineEscape
+    : '"' ~["\\]*('\\' . ~["\\]*)* '"'
+    ;
+fragment DQuoteQuoteEscape
+    : '"' ~["]*('""' ~["]*)* '"'
+    ;
+fragment SQuoteQuoteEscape
+    : '\'' ~[']*('\'\'' ~[']*)* '\''
+    ;
+fragment SQuoteNewlineEscape
+    : '\'' ~['\\]*('\\' . ~['\\]*)* '\''
+    ;
+
+
+/*
+4. KEYWORDS
+------------------------------------------------------------------
+Keywords may be either RESERVED or UNRESERVED tokens. RESERVED tokens mean that
+they may not be used directly as an identifier unless quoted. UNRESERVED tokens
+are more helper tokens to refer to from the parser file. We will also respect
+RESERVED tokens from BigQuery or DuckDB, and even if unused currently in our application
+we will group them in a special category of "Other".
+
+References: BigQuery: https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#reserved_keywords
+            DuckDB: https://github.com/duckdb/duckdb/blob/master/third_party/libpg_query/include/parser/kwlist.hpp
+*/
+
+// 4.1. RESERVED (Used)
+ALL:                            'ALL';
+AND:                            'AND';
+ANY:                            'ANY';
+ARRAY:                          'ARRAY';
+AS:                             'AS';
+ASC:                            'ASC';
+BETWEEN:                        'BETWEEN';
+BY:                             'BY';
+CASE:                           'CASE';
+CAST:                           'CAST';
+COLLATE:                        'COLLATE';
+CROSS:                          'CROSS';
+CURRENT:                        'CURRENT';
+DESC:                           'DESC';
+DISTINCT:                       'DISTINCT';
+ELSE:                           'ELSE';
+END:                            'END';
+EXCEPT:                         'EXCEPT';
+EXISTS:                         'EXISTS';
+EXTRACT:                        'EXTRACT';
+FALSE:                          'FALSE';
+FOLLOWING:                      'FOLLOWING';
+FROM:                           'FROM';
+FULL:                           'FULL';
+GROUP:                          'GROUP';
+HAVING:                         'HAVING';
+IN:                             'IN';
+INNER:                          'INNER';
+INTERSECT:                      'INTERSECT';
+INTERVAL:                       'INTERVAL';
+IS:                             'IS';
+JOIN:                           'JOIN';
+LEFT:                           'LEFT';
+LIKE:                           'LIKE';
+LIMIT:                          'LIMIT';
+NOT:                            'NOT';
+NULL:                           'NULL';
+NULLS:                          'NULLS';
+OFFSET:                         'OFFSET';
+ON:                             'ON';
+OR:                             'OR';
+ORDER:                          'ORDER';
+OUTER:                          'OUTER';
+OVER:                           'OVER';
+PARTITION:                      'PARTITION';
+PRECEDING:                      'PRECEDING';
+QUALIFY:                        'QUALIFY';
+RANGE:                          'RANGE';
+RECURSIVE:                      'RECURSIVE';
+RIGHT:                          'RIGHT';
+ROLLUP:                         'ROLLUP';
+ROW:                            'ROW';
+ROWS:                           'ROWS';
+SELECT:                         'SELECT';
+SOME:                           'SOME';
+STRUCT:                         'STRUCT';
+TABLESAMPLE:                    'TABLESAMPLE';
+THEN:                           'THEN';
+TO:                             'TO';
+TRUE:                           'TRUE';
+UNBOUNDED:                      'UNBOUNDED';
+UNION:                          'UNION';
+UNIQUE:                         'UNIQUE';
+USING:                          'USING';
+WHEN:                           'WHEN';
+WHERE:                          'WHERE';
+WINDOW:                         'WINDOW';
+WITH:                           'WITH';
+
+
+// 4.2. RESERVED (Currently Unused)
+Other_Reserved_Keyword
+  : ANALYSE | ANALYZE | ASSERT_ROWS_MODIFIED | ASYMMETRIC | AT | BOTH | CHECK | COLUMN | CONSTRAINT | CONTAINS | CREATE
+  | CUBE | CURRENT_TIME | CURRENT_TIMESTAMP | DEFAULT | DEFERRABLE | DEFINE | DO | ENUM | ESCAPE | FETCH
+  | FOR | FOREIGN | GLOB | GRANT | GROUPING | GROUPS | HASH | IF | IGNORE | INITIALLY | INTO | LATERAL | LEADING | LOCALTIME
+  | LOCALTIMESTAMP | LOOKUP | MERGE | MODIFIED | NATURAL | NEW | NO | OF | ONLY  | PLACING | PRIMARY | PROTO | REFERENCES
+  | RESERVED_PREFIX | RESPECT | RETURNING | SET | SYMMETRIC | TABLE | TRAILING | TREAT | UNNEST | USER | VARIADIC | WITHIN
+  ;
+
+fragment RESERVED_PREFIX:       'DD_' [a-z0-9_]+;
+fragment ANALYSE:               'ANALYSE';                  
+fragment ANALYZE:               'ANALYZE';                  
+fragment ASSERT_ROWS_MODIFIED:  'ASSERT_ROWS_MODIFIED';     
+fragment ASYMMETRIC:            'ASYMMETRIC';               
+fragment AT:                    'AT';                       
+fragment BOTH:                  'BOTH';                     
+fragment CHECK:                 'CHECK';                    
+fragment COLUMN:                'COLUMN';                   
+fragment CONSTRAINT:            'CONSTRAINT';               
+fragment CONTAINS:              'CONTAINS';                 
+fragment CREATE:                'CREATE';                   
+fragment CUBE:                  'CUBE';                     
+fragment CURRENT_TIME:          'CURRENT_TIME';             
+fragment CURRENT_TIMESTAMP:     'CURRENT_TIMESTAMP';        
+fragment DEFAULT:               'DEFAULT';
+fragment DEFERRABLE:            'DEFERRABLE';               
+fragment DEFINE:                'DEFINE';                   
+fragment DO:                    'DO';                       
+fragment ENUM:                  'ENUM';                     
+fragment ESCAPE:                'ESCAPE';                   
+fragment FETCH:                 'FETCH';
+fragment FOR:                   'FOR';                      
+fragment FOREIGN:               'FOREIGN';                  
+fragment GLOB:                  'GLOB';                     
+fragment GRANT:                 'GRANT';                    
+fragment GROUPING:              'GROUPING';                 
+fragment GROUPS:                'GROUPS';                   
+fragment HASH:                  'HASH';                     
+fragment IF:                    'IF';                       
+fragment IGNORE:                'IGNORE';                   
+fragment INITIALLY:             'INITIALLY';                
+fragment INTO:                  'INTO';                     
+fragment LATERAL:               'LATERAL';                  
+fragment LEADING:               'LEADING';                  
+fragment LOCALTIME:             'LOCALTIME';                
+fragment LOCALTIMESTAMP:        'LOCALTIMESTAMP';           
+fragment LOOKUP:                'LOOKUP';                   
+fragment MERGE:                 'MERGE';                    
+fragment MODIFIED:              'MODIFIED';                 
+fragment NATURAL:               'NATURAL';                  
+fragment NEW:                   'NEW';                      
+fragment NO:                    'NO';                       
+fragment OF:                    'OF';                       
+fragment ONLY:                  'ONLY';                     
+fragment PLACING:               'PLACING';                  
+fragment PRIMARY:               'PRIMARY';                  
+fragment PROTO:                 'PROTO';                    
+fragment REFERENCES:            'REFERENCES';               
+fragment RESPECT:               'RESPECT';                  
+fragment RETURNING:             'RETURNING';                
+fragment SET:                   'SET';
+fragment SYMMETRIC:             'SYMMETRIC';                
+fragment TABLE:                 'TABLE';                    
+fragment TRAILING:              'TRAILING';                 
+fragment TREAT:                 'TREAT';                    
+fragment UNNEST:                'UNNEST';                   
+fragment USER:                  'USER';                     
+fragment VARIADIC:              'VARIADIC';                 
+fragment WITHIN:                'WITHIN';                   
+
+
+// 4.3. OTHER KEYWORDS
+// Note that some of these keywords may be restricted in certain contexts.
+// For example, the keyword "BOOLEAN" may not be used as the name of a custom type,
+// because it is already the name of a type.
+// Note: INTERVAL, STRUCT, and ARRAY are RESERVED.
+BOOLEAN:                        'BOOLEAN' | 'BOOL' ;
+INTEGER:                        'INTEGER' | 'INT';
+FLOAT:                          'FLOAT' | 'REAL';
+DECIMAL:                        'DECIMAL' | 'NUMERIC';
+STRING:                         'STRING' | 'TEXT' | 'VARCHAR';
+BYTES:                          'BYTES' | 'BINARY' | 'BLOB' | 'BYTEA';
+DATE:                           'DATE';
+TIME:                           'TIME';
+DATETIME:                       'DATETIME' | 'TIMESTAMP';
+JSON:                           'JSON';
+VARIANT:                        'VARIANT';
+GEOGRAPHY:                      'GEOGRAPHY' | 'GEO';
+
+POINT:                          'POINT';
+LINE:                           'LINE';
+POLYGON:                        'POLYGON';
+MULTIPOINT:                     'MULTIPOINT';
+MULTILINE:                      'MULTILINE';
+GEOMETRYCOLLECTION:             'GEOMETRYCOLLECTION';
+
+SECOND:                         'SECOND';
+MINUTE:                         'MINUTE';
+HOUR:                           'HOUR';
+DAY:                            'DAY';
+WEEK:                           'WEEK';
+MONTH:                          'MONTH';
+QUARTER:                        'QUARTER';
+YEAR:                           'YEAR';
+
+COUNT:                          'COUNT';
+FIRST:                          'FIRST';
+LAST:                           'LAST';
+PERCENT:                        'PERCENT';
+REPLACE:                        'REPLACE';
+SAFE_CAST:                      'SAFE_CAST';
+TRY_CAST:                       'TRY_CAST';
+VALUES:                         'VALUES';
+WITHOUT:                        'WITHOUT';
+
+
+/*
+5. IDENTIFIERS, COMMENTS, and WHITESPACE
+------------------------------------------------------------------
+Identiers must be quoted with `backticks` if they clash with a reserved keyword.
+However, within a dotted path, backticks are not necessary and are handled by
+the special mode defined below.
+
+Examples (within a SELECT clause):
+    SELECT myIdentifier, `select`, tbl . select, tbl . new[0] . select, tbl.`123`
+    FROM tbl
+*/
+
+Identifier
+    : PureIdentifier
+    | BQuoteQuoteEscape
+    ;
+
+fragment PureIdentifier
+    : [A-Z_] [A-Z_0-9]*
+    ;
+
+fragment BQuoteQuoteEscape
+    : '`' ~[`]*('``' ~[`]*)* '`'
+    ;
+
+Single_Line_Comment
+    : ('--'|'#') ~ [\r\n]* -> skip
+    ;     
+
+Multi_Line_Comment
+    : '/*' .*? ('*/' | EOF) -> skip
+    ;
+
+fragment WhiteSpace
+    : [ \t\r\n]
+    ;
+
+White_Space
+    : WhiteSpace -> skip
+    ;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
