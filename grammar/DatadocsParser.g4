@@ -15,7 +15,7 @@ and we don't want to parse every statement on each character-change.
 
 */
 testRoot
-    : sqlStatement (Semi sqlStatement)* Semi | EOF
+    : sqlStatement (Semi sqlStatement)* Semi? EOF
     ;
 
 root
@@ -334,6 +334,10 @@ As an example `DATE` would not be an Identifier, but it would be an identifier.
 4.1. We won't allow cast for STRUCTs to begin. However the format will be <expr>::STRUCT(id type[, ...])
 4.2. Variant does not have a literal value, it can only be cast from another literal, such as:
      1.2::VARIANT, DECIMAL(3,1) '21.7'::VARIANT
+4.3 GEO literals may be in the following format:
+    (a) GEOGRAPHY 'POINT(1 1)'
+    (b) POINT '1,1'
+    (c) GEOGRAPHY(point) 'POINT(1 1)'
 */
 
 identifier
@@ -353,7 +357,7 @@ literalType
     | DATETIME
     | JSON
     | VARIANT
-    | (geographyType | GEOGRAPHY OpenParen geographyType CloseParen)
+    | (GEOGRAPHY | geographyType | GEOGRAPHY OpenParen geographyType CloseParen)
     | literalType (OpenBracket CloseBracket)+
     | identifier
 //  | STRUCT OpenParen (identifier literalType (Comma identifier literalType)*) CloseParen
@@ -372,7 +376,8 @@ literal
     | TIME String_Literal                                                           # timeLiteral
     | DATETIME String_Literal                                                       # dateTimeLiteral
     | JSON String_Literal                                                           # jsonLiteral
-    | (geographyType | GEOGRAPHY OpenParen geographyType CloseParen) String_Literal # geoLiteral
+    | (GEOGRAPHY (OpenParen geographyType CloseParen)? | geographyType)
+                                                               String_Literal       # geoLiteral
     | INTERVAL String_Literal timeUnit (TO timeUnit)?                               # intervalLiteral
     | OpenBracket (literal (Comma literal)*)? CloseBracket                          # arrayLiteral
     | OpenBrace kvPairList? CloseBrace                                              # structLiteral
