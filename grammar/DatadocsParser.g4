@@ -15,7 +15,7 @@ and we don't want to parse every statement on each character-change.
 
 */
 testRoot
-    : sqlStatement (Semi sqlStatement)* Semi? EOF
+    : sqlStatement? (Semi sqlStatement)* Semi? EOF
     ;
 
 root
@@ -377,12 +377,6 @@ As an example `DATE` would not be an Identifier, but it would be an identifier.
 identifier
     : Identifier
     | unreservedKeyword
-    ;
-
-identifierForFunction
-    : Identifier
-    | unreservedKeyword
-    | RANGE | EXTRACT
     ;
 
 literalType
