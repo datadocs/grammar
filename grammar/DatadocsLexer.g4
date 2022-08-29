@@ -82,7 +82,7 @@ Examples: "hello", 'hello', 'he''llo', b'ab12', B"1\"2\n".
 
 fragment Hex_Literal: ('0x' HexDigit+);
 Integer_Literal: Digit+;
-Float_Literal: (Digit+ Dot Digit* | Dot Digit+) Exponent?;
+Float_Literal: (Digit+ Dot Digit* | Dot? Digit+) Exponent?;
 
 fragment Exponent: 'E' [+-]? Digit+;
 fragment HexDigit: [0-9a-f];
@@ -143,21 +143,26 @@ BY:                             'BY';
 CASE:                           'CASE';
 CAST:                           'CAST';
 COLLATE:                        'COLLATE';
+CONTAINS:                       'CONTAINS';
 CROSS:                          'CROSS';
 CURRENT:                        'CURRENT';
 DESC:                           'DESC';
 DISTINCT:                       'DISTINCT';
 ELSE:                           'ELSE';
 END:                            'END';
-EXCEPT:                         'EXCEPT';
+EXCEPT:                         'EXCEPT'|'EXCLUDE';
 EXISTS:                         'EXISTS';
 EXTRACT:                        'EXTRACT';
 FALSE:                          'FALSE';
 FOLLOWING:                      'FOLLOWING';
 FROM:                           'FROM';
 FULL:                           'FULL';
+GLOB:                           'GLOB';
 GROUP:                          'GROUP';
+GROUPING:                       'GROUPING';
 HAVING:                         'HAVING';
+IGNORE:                         'IGNORE';
+IF:                             'IF';
 IN:                             'IN';
 INNER:                          'INNER';
 INTERSECT:                      'INTERSECT';
@@ -181,6 +186,7 @@ PRECEDING:                      'PRECEDING';
 QUALIFY:                        'QUALIFY';
 RANGE:                          'RANGE';
 RECURSIVE:                      'RECURSIVE';
+RESPECT:                        'RESPECT';
 RIGHT:                          'RIGHT';
 ROLLUP:                         'ROLLUP';
 ROW:                            'ROW';
@@ -195,6 +201,7 @@ TRUE:                           'TRUE';
 UNBOUNDED:                      'UNBOUNDED';
 UNION:                          'UNION';
 UNIQUE:                         'UNIQUE';
+UNNEST:                         'UNNEST';
 USING:                          'USING';
 WHEN:                           'WHEN';
 WHERE:                          'WHERE';
@@ -204,11 +211,11 @@ WITH:                           'WITH';
 
 // 4.2. RESERVED (Currently Unused)
 Other_Reserved_Keyword
-  : ANALYSE | ANALYZE | ASSERT_ROWS_MODIFIED | ASYMMETRIC | AT | BOTH | CHECK | COLUMN | CONSTRAINT | CONTAINS | CREATE
+  : ANALYSE | ANALYZE | ASSERT_ROWS_MODIFIED | ASYMMETRIC | AT | BOTH | CHECK | COLUMN | CONSTRAINT | CREATE
   | CUBE | CURRENT_TIME | CURRENT_TIMESTAMP | DEFAULT | DEFERRABLE | DEFINE | DO | ENUM | ESCAPE | FETCH
-  | FOR | FOREIGN | GLOB | GRANT | GROUPING | GROUPS | HASH | IF | IGNORE | INITIALLY | INTO | LATERAL | LEADING | LOCALTIME
+  | FOR | FOREIGN | GRANT | GROUPS | HASH | INITIALLY | INTO | LATERAL | LEADING | LOCALTIME
   | LOCALTIMESTAMP | LOOKUP | MERGE | MODIFIED | NATURAL | NEW | NO | OF | ONLY  | PLACING | PRIMARY | PROTO | REFERENCES
-  | RESERVED_PREFIX | RESPECT | RETURNING | SET | SYMMETRIC | TABLE | TRAILING | TREAT | UNNEST | USER | VARIADIC | WITHIN
+  | RESERVED_PREFIX | RETURNING | SET | SYMMETRIC | TABLE | TRAILING | TREAT | USER | VARIADIC | WITHIN
   ;
 
 fragment RESERVED_PREFIX:       'DD_' [a-z0-9_]+;
@@ -221,8 +228,7 @@ fragment BOTH:                  'BOTH';
 fragment CHECK:                 'CHECK';                    
 fragment COLUMN:                'COLUMN';                   
 fragment CONSTRAINT:            'CONSTRAINT';               
-fragment CONTAINS:              'CONTAINS';                 
-fragment CREATE:                'CREATE';                   
+fragment CREATE:                'CREATE';
 fragment CUBE:                  'CUBE';                     
 fragment CURRENT_TIME:          'CURRENT_TIME';             
 fragment CURRENT_TIMESTAMP:     'CURRENT_TIMESTAMP';        
@@ -235,14 +241,10 @@ fragment ESCAPE:                'ESCAPE';
 fragment FETCH:                 'FETCH';
 fragment FOR:                   'FOR';                      
 fragment FOREIGN:               'FOREIGN';                  
-fragment GLOB:                  'GLOB';                     
-fragment GRANT:                 'GRANT';                    
-fragment GROUPING:              'GROUPING';                 
-fragment GROUPS:                'GROUPS';                   
+fragment GRANT:                 'GRANT';
+fragment GROUPS:                'GROUPS';
 fragment HASH:                  'HASH';                     
-fragment IF:                    'IF';                       
-fragment IGNORE:                'IGNORE';                   
-fragment INITIALLY:             'INITIALLY';                
+fragment INITIALLY:             'INITIALLY';
 fragment INTO:                  'INTO';                     
 fragment LATERAL:               'LATERAL';                  
 fragment LEADING:               'LEADING';                  
@@ -260,15 +262,13 @@ fragment PLACING:               'PLACING';
 fragment PRIMARY:               'PRIMARY';                  
 fragment PROTO:                 'PROTO';                    
 fragment REFERENCES:            'REFERENCES';               
-fragment RESPECT:               'RESPECT';                  
-fragment RETURNING:             'RETURNING';                
+fragment RETURNING:             'RETURNING';
 fragment SET:                   'SET';
 fragment SYMMETRIC:             'SYMMETRIC';                
 fragment TABLE:                 'TABLE';                    
 fragment TRAILING:              'TRAILING';                 
 fragment TREAT:                 'TREAT';                    
-fragment UNNEST:                'UNNEST';                   
-fragment USER:                  'USER';                     
+fragment USER:                  'USER';
 fragment VARIADIC:              'VARIADIC';                 
 fragment WITHIN:                'WITHIN';                   
 
@@ -298,24 +298,31 @@ MULTIPOINT:                     'MULTIPOINT';
 MULTILINE:                      'MULTILINE';
 GEOMETRYCOLLECTION:             'GEOMETRYCOLLECTION';
 
-SECOND:                         'SECOND';
-MINUTE:                         'MINUTE';
-HOUR:                           'HOUR';
-DAY:                            'DAY';
-WEEK:                           'WEEK';
-MONTH:                          'MONTH';
-QUARTER:                        'QUARTER';
-YEAR:                           'YEAR';
+MICROSECOND:                    'MICROSECOND' 'S'?;
+MILLISECOND:                    'MILLISECOND' 'S'?;
+SECOND:                         'SECOND' 'S'?;
+MINUTE:                         'MINUTE' 'S'?;
+HOUR:                           'HOUR' 'S'?;
+DAY:                            'DAY' 'S'?;
+WEEK:                           'WEEK' 'S'?;
+MONTH:                          'MONTH' 'S'?;
+QUARTER:                        'QUARTER' 'S'?;
+YEAR:                           'YEAR' 'S'?;
+
+DAYOFWEEK:                      'DAYOFWEEK' | 'DOW';
+DAYOFYEAR:                      'DAYOFYEAR' | 'DOY';
 
 COUNT:                          'COUNT';
 FIRST:                          'FIRST';
 LAST:                           'LAST';
+FILTER:                         'FILTER';
 PERCENT:                        'PERCENT';
 REPLACE:                        'REPLACE';
 SAFE_CAST:                      'SAFE_CAST';
 TRY_CAST:                       'TRY_CAST';
 VALUES:                         'VALUES';
 WITHOUT:                        'WITHOUT';
+POSITION:                       'POSITION';
 
 
 /*
