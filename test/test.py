@@ -22,7 +22,7 @@ python $script $file
 
 And to run the java parser on an output file:
 
-
+ant Datadocs testRoot /Users/david/Desktop/grammar/test/duckdb/ok.txt 
 '''
 
 
