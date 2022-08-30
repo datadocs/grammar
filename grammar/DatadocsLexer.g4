@@ -67,7 +67,6 @@ Concat:                         '||';
 3. LITERALS
 ------------------------------------------------------------------
 1. NUMBERS are accepted as either an integer, float, or scientific number.
-Hex numbers are not currently supported.
 
 Examples: 1.2, 1, .23, 1., 2e3, 12.3e-12
 
@@ -80,9 +79,9 @@ Examples: "hello", 'hello', 'he''llo', b'ab12', B"1\"2\n".
 
 */
 
-fragment Hex_Literal: ('0x' HexDigit+);
 Integer_Literal: Digit+;
 Float_Literal: (Digit+ Dot Digit* | Dot? Digit+) Exponent?;
+Hex_Literal: ('0x' HexDigit+) Exponent?;
 
 fragment Exponent: 'E' [+-]? Digit+;
 fragment HexDigit: [0-9a-f];
@@ -123,9 +122,10 @@ fragment SQuoteNewlineEscape
 ------------------------------------------------------------------
 Keywords may be either RESERVED or UNRESERVED tokens. RESERVED tokens mean that
 they may not be used directly as an identifier unless quoted. UNRESERVED tokens
-are more helper tokens to refer to from the parser file. We will also respect
-RESERVED tokens from BigQuery or DuckDB, and even if unused currently in our application
-we will group them in a special category of "Other".
+are more helper tokens to refer to from the parser file.
+
+We will also respect RESERVED tokens from BigQuery or DuckDB, and even if currently unused
+in our application. These will be placed in the "Other_Reserved_Keyword" group.
 
 References: BigQuery: https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#reserved_keywords
             DuckDB: https://github.com/duckdb/duckdb/blob/master/third_party/libpg_query/include/parser/kwlist.hpp
@@ -210,16 +210,7 @@ WITH:                           'WITH';
 
 
 // 4.2. RESERVED (Currently Unused)
-Other_Reserved_Keyword
-  : ANALYSE | ANALYZE | ASSERT_ROWS_MODIFIED | ASYMMETRIC | AT | BOTH | CHECK | COLUMN | CONSTRAINT | CREATE
-  | CUBE | CURRENT_TIME | CURRENT_TIMESTAMP | DEFAULT | DEFERRABLE | DEFINE | DO | ENUM | ESCAPE | FETCH
-  | FOR | FOREIGN | GRANT | GROUPS | HASH | INITIALLY | INTO | LATERAL | LEADING | LOCALTIME
-  | LOCALTIMESTAMP | LOOKUP | MERGE | MODIFIED | NATURAL | NEW | NO | OF | ONLY  | PLACING | PRIMARY | PROTO | REFERENCES
-  | RESERVED_PREFIX | RETURNING | SET | SYMMETRIC | TABLE | TRAILING | TREAT | USER | VARIADIC | WITHIN
-  ;
-
-fragment RESERVED_PREFIX:       'DD_' [a-z0-9_]+;
-fragment ANALYSE:               'ANALYSE';                  
+fragment ANALYSE:               'ANALYSE';
 fragment ANALYZE:               'ANALYZE';                  
 fragment ASSERT_ROWS_MODIFIED:  'ASSERT_ROWS_MODIFIED';     
 fragment ASYMMETRIC:            'ASYMMETRIC';               
@@ -260,8 +251,9 @@ fragment OF:                    'OF';
 fragment ONLY:                  'ONLY';                     
 fragment PLACING:               'PLACING';                  
 fragment PRIMARY:               'PRIMARY';                  
-fragment PROTO:                 'PROTO';                    
-fragment REFERENCES:            'REFERENCES';               
+fragment PROTO:                 'PROTO';
+fragment REFERENCES:            'REFERENCES';
+fragment RESERVED_PREFIX:       ('DD'|'XL') ('_' [a-z0-9_]*)?;
 fragment RETURNING:             'RETURNING';
 fragment SET:                   'SET';
 fragment SYMMETRIC:             'SYMMETRIC';                
@@ -272,6 +264,61 @@ fragment USER:                  'USER';
 fragment VARIADIC:              'VARIADIC';                 
 fragment WITHIN:                'WITHIN';                   
 
+Other_Reserved_Keyword
+  : ANALYSE
+  | ANALYZE
+  | ASSERT_ROWS_MODIFIED
+  | ASYMMETRIC
+  | AT
+  | BOTH
+  | CHECK
+  | COLUMN
+  | CONSTRAINT
+  | CREATE
+  | CUBE
+  | CURRENT_TIME
+  | CURRENT_TIMESTAMP
+  | DEFAULT
+  | DEFERRABLE
+  | DEFINE
+  | DO
+  | ENUM
+  | ESCAPE
+  | FETCH
+  | FOR
+  | FOREIGN
+  | GRANT
+  | GROUPS
+  | HASH
+  | INITIALLY
+  | INTO
+  | LATERAL
+  | LEADING
+  | LOCALTIME
+  | LOCALTIMESTAMP
+  | LOOKUP
+  | MERGE
+  | MODIFIED
+  | NATURAL
+  | NEW
+  | NO
+  | OF
+  | ONLY
+  | PLACING
+  | PRIMARY
+  | PROTO
+  | REFERENCES
+  | RESERVED_PREFIX
+  | RETURNING
+  | SET
+  | SYMMETRIC
+  | TABLE
+  | TRAILING
+  | TREAT
+  | USER
+  | VARIADIC
+  | WITHIN
+  ;
 
 // 4.3. OTHER KEYWORDS
 // Note that some of these keywords may be restricted in certain contexts.
@@ -313,16 +360,15 @@ DAYOFWEEK:                      'DAYOFWEEK' | 'DOW';
 DAYOFYEAR:                      'DAYOFYEAR' | 'DOY';
 
 COUNT:                          'COUNT';
+FILTER:                         'FILTER';
 FIRST:                          'FIRST';
 LAST:                           'LAST';
-FILTER:                         'FILTER';
 PERCENT:                        'PERCENT';
+POSITION:                       'POSITION';
 REPLACE:                        'REPLACE';
-SAFE_CAST:                      'SAFE_CAST';
-TRY_CAST:                       'TRY_CAST';
+TRY_CAST:                       'TRY_CAST' | 'SAFE_CAST';
 VALUES:                         'VALUES';
 WITHOUT:                        'WITHOUT';
-POSITION:                       'POSITION';
 
 
 /*
@@ -358,11 +404,7 @@ Multi_Line_Comment
     : '/*' .*? ('*/' | EOF) -> skip
     ;
 
-fragment WhiteSpace
-    : [ \t\r\n]
-    ;
-
 White_Space
-    : WhiteSpace -> skip
+    : [ \t\r\n] -> skip
     ;
 

@@ -36,15 +36,15 @@ appear in a separate section.
 
 A few high-level notes:
 
-2.1. A FROM clause is not required. However, it is required for specifying WHERE/GROUP BY/HAVING/QUALIFY/WINDOW.
+2.1. A FROM clause is not required. However, it is required for specifying WHERE/GROUP/HAVING/QUALIFY/WINDOW.
 2.2. We will not support having an expression in the LIMIT or OFFSET clause (DuckDB does, BQ does not).
-2.3 GROUP BY is not required for a HAVING clause, for example SELECT COUNT(1) AS c FROM tbl HAVING c > 10
+2.3 GROUP BY is not required for a HAVING clause, for example SELECT COUNT(1) FROM tbl HAVING COUNT(1) > 10
 2.4. A column identifier may be of the form [server.][database.][schema.][field], so a four-part path at the maximum.
      Note that a field can continue down the path if it is a STRUCT.
-2.5 A tableItem will eventually allow a table-valued function call, but we will not allow that to start.
-2.6 GROUP BY clause will support standard GROUP BY and ROLLUP, but not CUBE or GROUPING SETS.
-2.7 LIMIT may be expressed as either LIMIT 100, OFFSET 10 or LIMIT 100, 10.
-2.8 Note that selectStar expression may not use an Alias. This will need to be checked in semantic validation.
+2.5 GROUP BY clause will support standard GROUP BY and ROLLUP, but not CUBE or GROUPING SETS.
+2.6 LIMIT/OFFSET may be expressed as either LIMIT 100, OFFSET 10 or LIMIT 100, 10.
+2.7 Note that selectStar expression may not use an Alias. This will need to be checked in semantic validation.
+2.8 We will often allow trailing commas for conevenience, such as in an SELECT or GROUP BY item list.
 
 ## Most important of all, type-checking will, for the most part, not be performed within the grammar itself.
    This is primarily noticeable in how most clauses may refer to the same `expr` rule.
@@ -72,7 +72,6 @@ select:
       havingClause?
       qualifyClause?
       windowClause?
-
      )?;
 
 selectClause
@@ -106,7 +105,7 @@ tableExpression
 tableItem
     : identifier (Dot (identifier|reservedKeyword))*                                # simplePath
     | OpenParen selectStatement CloseParen                                          # subSelect
-    | ((RANGE|GLOB|UNNEST| identifier (Dot (identifier|reservedKeyword))*)
+    | ((RANGE|GLOB|UNNEST|identifier (Dot (identifier|reservedKeyword))*)
                           OpenParen functionParams? CloseParen)                     # tableFunction
     | OpenParen  valuesClause CloseParen                                            # valuesTable
     ;
@@ -214,7 +213,6 @@ partitionByClause:
     PARTITION BY genericExpressionList
     ;
 
-
 genericExpressionList
     : genericExpressionItem (Comma genericExpressionItem)*
     ;
@@ -275,27 +273,36 @@ The following are some general notes:
 */
 
 expr
+    // Parenthetical expressions
     : OpenParen expr (Comma expr)* Comma? CloseParen                                # parenExpr
     | OpenParen selectStatement CloseParen                                          # subSelectExpr
-    | literal                                                                       # literalExpr
 
-    // Unambiguous (leading) expressions
-    | CASE expr? (WHEN expr THEN expr)+ (ELSE expr)? END                            # caseExpr
+    // Function
+    | expr OpenParen (Star | (ALL|DISTINCT)? functionParams? orderByClause?)
+        ((RESPECT|IGNORE) NULLS)? CloseParen filterClause? (OVER windowItem)?       # functionCallExpr
+
+    // Various anchored/unambiguous expressions
+    | Star starExcept? starReplace?                                                 # starExpr
     | EXTRACT OpenParen extendedTimeUnit FROM expr CloseParen                       # extractExpr
-    | (SAFE_CAST|TRY_CAST|CAST) OpenParen expr AS literalType CloseParen            # castFunctionExpr
+    | (TRY_CAST|CAST) OpenParen expr AS literalType CloseParen                      # castFunctionExpr
     | POSITION OpenParen expr IN expr CloseParen                                    # positionExpr
     | (RANGE|GROUPING|IF|UNNEST|GLOB|CONTAINS|LEFT|RIGHT)
             OpenParen expr (Comma expr)* CloseParen                                 # otheReservedExpr
+    | EXISTS OpenParen simpleSelect CloseParen                                      # logicalExistsExpr
 
-    // Other custom expressions
+    // Collate and Cast expressions
     | expr TypeCast literalType                                                     # castOperatorExpr
     | expr COLLATE (WITH|WITHOUT) CASE                                              # collateExpr
+
+    // Path access expressions
+    | expr Dot Star starExcept? starReplace?                                        # pathAccessStarExpr
+    | expr (OpenBracket expr? (Colon expr?)? CloseBracket )                         # pathAccessArrayExpr
+    | expr Dot (identifier|reservedKeyword)                                         # pathAccessFieldExpr
 
     // Arithmetic expressions
     | (Plus | Minus) expr                                                           # arithmeticUnaryPlusMinusExpr
     | BitwiseNot expr                                                               # bitwiseNotExpr
     | expr (Star | Slash | Percent) expr                                            # arithmeticTimesDivRemainderExpr
-    | expr Concat expr                                                              # concatExpr
     | expr (Plus | Minus) expr                                                      # arithmeticPlusMinusExpr
 
     // Bitwise expressions (bitwiseNot above)
@@ -307,35 +314,21 @@ expr
     // Logical expressions
     | expr (Equals | NotEquals) expr                                                # logicalEqualsExpr
     | expr (LessThan | GreaterThan | LessThanEquals | GreaterThanEquals) expr       # logicalcomparisonExpr
+    | expr NOT? IN OpenParen (genericExpressionList|selectStatement) CloseParen     # logicalInExpr
     | expr NOT? BETWEEN expr AND expr                                               # logicalBetweenExpr
+    | CASE expr? (WHEN expr THEN expr)+ (ELSE expr)? END                            # caseExpr
     | expr NOT? LIKE expr                                                           # logicalLikeExpr
     | expr IS NOT? NULL                                                             # logicalNullExpr
     | NOT expr                                                                      # logicalNotExpr
     | expr AND expr                                                                 # logicalAndExpr
     | expr OR expr                                                                  # logicalOrExpr
-
-
-    // [TODO START] -- don't forge to move the precedence up!
-    // [TODO #2]    -- lateral aliasing
-    | expr NOT? IN OpenParen (genericExpressionList|selectStatement) CloseParen     # logicalInExpr
-    | EXISTS OpenParen simpleSelect CloseParen                                      # logicalExistsExpr
     | (ANY|ALL|SOME) expr                                                           # logicalAnyAllSomeExpr
+    | expr Concat expr                                                              # concatExpr
 
-    // Function expressions (should the leading `expr` be qualified?
-    | expr OpenParen (Star | (ALL|DISTINCT)? functionParams? orderByClause?)
-        ((RESPECT|IGNORE) NULLS)? CloseParen filterClause? (OVER windowItem)?       # functionCallParamsExpr
-
-    // Field access expressions
-    | Star starExcept? starReplace?                                                 # starExpr
-    | expr Dot Star starExcept? starReplace?                                        # pathAccessStarExpr
-    | expr (OpenBracket expr? (Colon expr?)? CloseBracket )                         # pathAccessArrayExpr
-    | expr Dot (identifier|reservedKeyword)                                         # pathAccessFieldExpr
-    // [TODO END]
-
+    // Atoms
+    | literal                                                                       # literalExpr
     | identifier                                                                    # identifierExpr
-
     ;
-
 
 
 starExcept:
@@ -459,7 +452,7 @@ unreservedKeyword
     : BOOLEAN | BYTES | COUNT | DATE | DATETIME | DAY | DAYOFWEEK | DAYOFYEAR | DECIMAL
     | FILTER | FIRST | FLOAT | GEOGRAPHY | GEOMETRYCOLLECTION | HOUR | INTEGER | JSON | LAST
     | LINE | MICROSECOND | MILLISECOND | MINUTE | MONTH | MULTILINE | MULTIPOINT | PERCENT
-    | POINT | POLYGON | POSITION | QUARTER | REPLACE | SAFE_CAST | SECOND | STRING | TIME | TRY_CAST
+    | POINT | POLYGON | POSITION | QUARTER | REPLACE | SECOND | STRING | TIME | TRY_CAST
      | VALUES | VARIANT | WEEK | WITHOUT | YEAR
     ;
 
