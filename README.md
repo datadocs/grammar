@@ -8,6 +8,7 @@ You can test this (in Java) by doing:
 ```
 $ cd grammar
 $ java -jar ../antlr-4.10.1-complete.jar Datadocs*.g4 -o out
+$ cd out
 $ javac Datadocs*.java
 $ time java org.antlr.v4.gui.TestRig Datadocs testRoot ../../test/duckdb/legacy.txt
 ```
