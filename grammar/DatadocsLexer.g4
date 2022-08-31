@@ -318,7 +318,7 @@ Other_Reserved_Keyword
 // Note that some of these keywords may be restricted in certain contexts.
 // For example, the keyword "BOOLEAN" may not be used as the name of a custom type,
 // because it is already the name of a type.
-// Note: INTERVAL, STRUCT, and ARRAY are RESERVED.
+// Note: INTERVAL, STRUCT, and ARRAY are RESERVED. GEOGRAPHY is via Constructor
 BOOLEAN:                        'BOOLEAN' | 'BOOL' ;
 INTEGER:                        'INTEGER' | 'INT';
 FLOAT:                          'FLOAT' | 'REAL';
@@ -330,14 +330,6 @@ TIME:                           'TIME';
 DATETIME:                       'DATETIME' | 'TIMESTAMP';
 JSON:                           'JSON';
 VARIANT:                        'VARIANT';
-GEOGRAPHY:                      'GEOGRAPHY' | 'GEO';
-
-POINT:                          'POINT';
-LINE:                           'LINE';
-POLYGON:                        'POLYGON';
-MULTIPOINT:                     'MULTIPOINT';
-MULTILINE:                      'MULTILINE';
-GEOMETRYCOLLECTION:             'GEOMETRYCOLLECTION';
 
 MICROSECOND:                    'MICROSECOND' 'S'?;
 MILLISECOND:                    'MILLISECOND' 'S'?;
@@ -349,7 +341,6 @@ WEEK:                           'WEEK' 'S'?;
 MONTH:                          'MONTH' 'S'?;
 QUARTER:                        'QUARTER' 'S'?;
 YEAR:                           'YEAR' 'S'?;
-
 DAYOFWEEK:                      'DAYOFWEEK' | 'DOW';
 DAYOFYEAR:                      'DAYOFYEAR' | 'DOY';
 

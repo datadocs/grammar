@@ -359,11 +359,7 @@ As an example `DATE` would not be an Identifier, but it would be an identifier.
 4.1. We won't allow cast for STRUCTs to begin. However the format will be <expr>::STRUCT(id type[, ...])
 4.2. Variant does not have a literal value, it can only be cast from another literal, such as:
      1.2::VARIANT, DECIMAL(3,1) '21.7'::VARIANT
-4.3 GEO literals may be in the following format:
-    (a) GEOGRAPHY 'POINT(1 1)'
-    (b) POINT '1,1'
-    (c) GEOGRAPHY(point) 'POINT(1 1)'
-4.4 We will add the L suffix to stand for local timezone, for example: '2014-01-01 01:02:03L'.
+4.3 We will add the L suffix to stand for local timezone, for example: '2014-01-01 01:02:03L'.
     This is similar to the Z suffix to mean UTC, for example '2014-01-01 01:02:03Z'.
 */
 
@@ -385,7 +381,6 @@ literalType
     | INTERVAL
     | JSON
     | VARIANT
-    | (GEOGRAPHY (OpenParen geographyType CloseParen)? | geographyType)
     | literalType (OpenBracket CloseBracket)+
     | identifier
     | STRUCT OpenParen (identifier literalType (Comma identifier literalType)*) CloseParen
@@ -404,20 +399,9 @@ literal
     | TIME String_Literal                                                           # timeLiteral
     | DATETIME String_Literal                                                       # dateTimeLiteral
     | JSON String_Literal                                                           # jsonLiteral
-    | (GEOGRAPHY (OpenParen geographyType CloseParen)? | geographyType)
-                                                               String_Literal       # geoLiteral
     | INTERVAL expr timeUnit (TO timeUnit)?                                         # intervalLiteral
     | ARRAY? OpenBracket (expr (Comma expr)*)? Comma? CloseBracket                  # arrayLiteral
     | OpenBrace kvPairList? CloseBrace                                              # structLiteral
-    ;
-
-geographyType
-    : POINT
-    | LINE
-    | POLYGON
-    | MULTIPOINT
-    | MULTILINE
-    | GEOMETRYCOLLECTION
     ;
 
 timeUnit
@@ -450,10 +434,9 @@ extendedTimeUnit
 
 unreservedKeyword
     : BOOLEAN | BYTES | COUNT | DATE | DATETIME | DAY | DAYOFWEEK | DAYOFYEAR | DECIMAL
-    | FILTER | FIRST | FLOAT | GEOGRAPHY | GEOMETRYCOLLECTION | HOUR | INTEGER | JSON | LAST
-    | LINE | MICROSECOND | MILLISECOND | MINUTE | MONTH | MULTILINE | MULTIPOINT | PERCENT
-    | POINT | POLYGON | POSITION | QUARTER | REPLACE | SECOND | STRING | TIME | TRY_CAST
-     | VALUES | VARIANT | WEEK | WITHOUT | YEAR
+    | FILTER | FIRST | FLOAT | HOUR | INTEGER | JSON | LAST | MICROSECOND | MILLISECOND
+    | MINUTE | MONTH | PERCENT | POSITION | QUARTER | REPLACE | SECOND | STRING | TIME
+    | TRY_CAST | VALUES | VARIANT | WEEK | WITHOUT | YEAR
     ;
 
 reservedKeyword
