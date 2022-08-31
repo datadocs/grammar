@@ -72,50 +72,44 @@ Examples: 1.2, 1, .23, 1., 2e3, 12.3e-12
 
 2. STRING and BYTES may be enclosed with a single or double quote.
 Bytes literals have the same format, prefixed with a 'B' or 'b'.
-They may be escaped with a \ character or a doubling of the quote char.
+They may be escaped with a \ character. A Regex/Raw string is prefixed
+with an 'R' or 'r' and removes the need to escape backslashes in a regex.
 Regex used here is: normal* ( special normal* )*
 
 Examples: "hello", 'hello', 'he''llo', b'ab12', B"1\"2\n".
 
 */
 
-Integer_Literal: Digit+;
-Float_Literal: (Digit+ Dot Digit* | Dot? Digit+) Exponent?;
+Integer_Literal: (Digit+ | HexNumber);
+Float_Literal: (Digit+ Dot Digit* | Dot? Digit+ | HexNumber) Exponent?;
 Hex_Literal: ('0x' HexDigit+) Exponent?;
 
+fragment HexNumber: ('0x' HexDigit+);
 fragment Exponent: 'E' [+-]? Digit+;
 fragment HexDigit: [0-9a-f];
 fragment Digit: [0-9];
 
 
 String_Literal
-    : DQuoteNewlineEscape
-    | SQuoteNewlineEscape
-    | DQuoteQuoteEscape
-    | SQuoteQuoteEscape
-    ;
+    : 'R'? (
+       DQuoteNewlineEscape
+     | SQuoteNewlineEscape
+   );
 
 Bytes_Literal
     : 'B' (
        DQuoteNewlineEscape
      | SQuoteNewlineEscape
-     | DQuoteQuoteEscape
-     | SQuoteQuoteEscape
     );
+
 
 fragment DQuoteNewlineEscape
     : '"' ~["\\]*('\\' . ~["\\]*)* '"'
     ;
-fragment DQuoteQuoteEscape
-    : '"' ~["]*('""' ~["]*)* '"'
-    ;
-fragment SQuoteQuoteEscape
-    : '\'' ~[']*('\'\'' ~[']*)* '\''
-    ;
+
 fragment SQuoteNewlineEscape
     : '\'' ~['\\]*('\\' . ~['\\]*)* '\''
     ;
-
 
 /*
 4. KEYWORDS

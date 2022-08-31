@@ -15,7 +15,7 @@ To run:
 
 export grammar_dir=/Users/david/Desktop/grammar/grammar 
 export script=/Users/david/Desktop/grammar/test/test.py 
-export file=/Users/david/Desktop/grammar/test/duckdb/duckdb_selects.txt
+export file=/Users/david/Desktop/grammar/test/duckdb/legacy.txt
 
 alias rebuild='antlr4 -Dlanguage=Python3 -o "$( dirname "$grammar_dir" )"/out $grammar_dir/*.g4'
 python $script $file
@@ -44,7 +44,7 @@ def parseSQL(text):
 
 
 if __name__ == '__main__':
-    if len(sys.argv != 2):
+    if len(sys.argv) != 2:
         statements = ["SELECT 1", "asdf"]
         base = os.path.dirname(os.path.realpath(__file__))
     else:
@@ -79,6 +79,6 @@ if __name__ == '__main__':
             max_time = t2-t1
         total_time = t2 - t0
         avg_time = total_time / (i+1)
-        #  print ('%d. %-6s %.5f (OK: %1d | Error: %1d | MaxTime: %.4f | AvgTime: %.4f |TotalTime: %.4f)' % (i+1, 'OK' if successful else 'ERROR', t2-t1, ok_count, error_count, max_time, avg_time, total_time))
+        print ('%d. %-6s %.5f (OK: %1d | Error: %1d | MaxTime: %.4f | AvgTime: %.4f |TotalTime: %.4f)' % (i+1, 'OK' if successful else 'ERROR', t2-t1, ok_count, error_count, max_time, avg_time, total_time))
 
 

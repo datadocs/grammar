@@ -234,7 +234,7 @@ kvPairList
     ;
 
 kvPairItem
-    : (identifier|String_Literal) Colon expr
+    : (identifier|String_Literal|reservedKeyword) Colon expr
     ;
 
 functionParams
@@ -396,7 +396,7 @@ literal
     | (TRUE | FALSE)                                                                # boolLiteral
     | Integer_Literal                                                               # integerLiteral
     | Float_Literal                                                                 # floatLiteral
-    | DECIMAL (OpenParen Integer_Literal Comma Integer_Literal CloseParen)?
+    | DECIMAL (OpenParen Integer_Literal (Comma Integer_Literal)? CloseParen)?
                                                                 String_Literal      # decimalLiteral
     | (STRING (OpenParen Integer_Literal CloseParen)?)? String_Literal              # stringLiteral
     | (Bytes_Literal | BYTES String_Literal)                                        # bytesLiteral
