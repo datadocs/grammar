@@ -88,7 +88,8 @@ selectItemList
     ;
 
 selectItem
-    : expr alias?
+    : expr alias?                                                                   # selectOne
+    | Star starExcept? starReplace?                                                 # selectStar
     ;
 
 fromClause
@@ -282,7 +283,10 @@ expr
         ((RESPECT|IGNORE) NULLS)? CloseParen filterClause? (OVER windowItem)?       # functionCallExpr
 
     // Various anchored/unambiguous expressions
-    | Star starExcept? starReplace?                                                 # starExpr
+    /*
+        todo hello
+    */
+
     | EXTRACT OpenParen extendedTimeUnit FROM expr CloseParen                       # extractExpr
     | (TRY_CAST|CAST) OpenParen expr AS literalType CloseParen                      # castFunctionExpr
     | POSITION OpenParen expr IN expr CloseParen                                    # positionExpr
