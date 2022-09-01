@@ -283,10 +283,6 @@ expr
         ((RESPECT|IGNORE) NULLS)? CloseParen filterClause? (OVER windowItem)?       # functionCallExpr
 
     // Various anchored/unambiguous expressions
-    /*
-        todo hello
-    */
-
     | EXTRACT OpenParen extendedTimeUnit FROM expr CloseParen                       # extractExpr
     | (TRY_CAST|CAST) OpenParen expr AS literalType CloseParen                      # castFunctionExpr
     | POSITION OpenParen expr IN expr CloseParen                                    # positionExpr
