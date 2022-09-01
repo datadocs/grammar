@@ -279,10 +279,13 @@ expr
     | OpenParen selectStatement CloseParen                                          # subSelectExpr
 
     // Function
-    | expr OpenParen (Star | (ALL|DISTINCT)? functionParams? orderByClause?)
-        ((RESPECT|IGNORE) NULLS)? CloseParen filterClause? (OVER windowItem)?       # functionCallExpr
+    | identifier (Dot identifier)* OpenParen
+        (ALL|DISTINCT)? functionParams? orderByClause? ((RESPECT|IGNORE) NULLS)?
+        CloseParen filterClause? (OVER windowItem)?                                 # functionCallExpr
 
     // Various anchored/unambiguous expressions
+    | identifier OpenParen (DISTINCT|ALL)? Star CloseParen filterClause?
+                                                    (OVER windowItem)?              # functionStarExpr
     | EXTRACT OpenParen extendedTimeUnit FROM expr CloseParen                       # extractExpr
     | (TRY_CAST|CAST) OpenParen expr AS literalType CloseParen                      # castFunctionExpr
     | POSITION OpenParen expr IN expr CloseParen                                    # positionExpr
@@ -299,7 +302,7 @@ expr
     | expr (OpenBracket expr? (Colon expr?)? CloseBracket )                         # pathAccessArrayExpr
     | expr Dot (identifier|reservedKeyword)                                         # pathAccessFieldExpr
 
-    // Arithmetic expressions
+//     Arithmetic expressions
     | (Plus | Minus) expr                                                           # arithmeticUnaryPlusMinusExpr
     | BitwiseNot expr                                                               # bitwiseNotExpr
     | expr (Star | Slash | Percent) expr                                            # arithmeticTimesDivRemainderExpr
@@ -372,7 +375,7 @@ literalType
     : BOOLEAN
     | INTEGER
     | FLOAT
-    | DECIMAL (OpenParen Integer_Literal Comma Integer_Literal CloseParen)?
+    | DECIMAL (OpenParen Integer_Literal (Comma Integer_Literal)? CloseParen)?
     | STRING (OpenParen Integer_Literal CloseParen)?
     | BYTES
     | DATE
@@ -382,7 +385,7 @@ literalType
     | JSON
     | VARIANT
     | literalType (OpenBracket CloseBracket)+
-    | identifier
+    | Identifier  // Identifier must not allow unreserved type keywords, such as DECIMAL, or ambiguous
     | STRUCT OpenParen (identifier literalType (Comma identifier literalType)*) CloseParen
     ;
 

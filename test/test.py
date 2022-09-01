@@ -15,7 +15,7 @@ To run:
 
 export grammar_dir=/Users/david/Desktop/grammar/grammar 
 export script=/Users/david/Desktop/grammar/test/test.py 
-export file=/Users/david/Desktop/grammar/test/duckdb/legacy.txt
+export file=/Users/david/Desktop/grammar/test/duckdb_legacy.sql
 
 alias rebuild='antlr4 -Dlanguage=Python3 -o "$( dirname "$grammar_dir" )"/out $grammar_dir/*.g4'
 python $script $file

@@ -6638,8 +6638,6 @@ select round('-100.3'::decimal(18,1), 1)::varchar, round('104.3'::decimal(18,1),
 select printf('%.2f', '0.12345'::decimal(30,10));
 select (select '1.0'::decimal(2,1));
 select * from decs;
-select 1.25::float::dec, 1.25::float::dec();
-select 1.25::float::decimal, 1.25::float::decimal();
 select * from m where m = '';
 select m='' from m;
 select * from m where m=m_2;
@@ -7801,7 +7799,6 @@ select try_cast(i as decimal(9,5))::smallint from smallints order by i;
 select try_cast(i as decimal(18,14))::smallint from smallints order by i;
 select try_cast(i as decimal(38,34))::smallint from smallints order by i;
 select * from numerics;
-select 1.25::float::numeric, 1.25::float::numeric();
 select i::utinyint::tinyint from tinyints where i>=0 order by i;
 select i::usmallint::tinyint from tinyints where i>=0 order by i;
 select i::uinteger::tinyint from tinyints where i>=0 order by i;
