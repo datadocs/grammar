@@ -278,7 +278,8 @@ expr
     : OpenParen expr (Comma expr)* Comma? CloseParen                                # parenExpr
     | OpenParen selectStatement CloseParen                                          # subSelectExpr
 
-    // Function
+    // Function -- cannot really tell which is an aggregation function
+    // and which is not so we group into the same expression (esp with UDFs)
     | identifier (Dot identifier)* OpenParen
         (ALL|DISTINCT)? functionParams? orderByClause? ((RESPECT|IGNORE) NULLS)?
         CloseParen filterClause? (OVER windowItem)?                                 # functionCallExpr
@@ -302,7 +303,7 @@ expr
     | expr (OpenBracket expr? (Colon expr?)? CloseBracket )                         # pathAccessArrayExpr
     | expr Dot (identifier|reservedKeyword)                                         # pathAccessFieldExpr
 
-//     Arithmetic expressions
+    // Arithmetic expressions
     | (Plus | Minus) expr                                                           # arithmeticUnaryPlusMinusExpr
     | BitwiseNot expr                                                               # bitwiseNotExpr
     | expr (Star | Slash | Percent) expr                                            # arithmeticTimesDivRemainderExpr
@@ -384,9 +385,9 @@ literalType
     | INTERVAL
     | JSON
     | VARIANT
-    | literalType (OpenBracket CloseBracket)+
-    | Identifier  // Identifier must not allow unreserved type keywords, such as DECIMAL, or ambiguous
     | STRUCT OpenParen (identifier literalType (Comma identifier literalType)*) CloseParen
+    | literalType (OpenBracket CloseBracket)+
+    | (Identifier|unreservedKeywordMinusType)
     ;
 
 literal
@@ -440,6 +441,12 @@ unreservedKeyword
     | FILTER | FIRST | FLOAT | HOUR | INTEGER | JSON | LAST | MICROSECOND | MILLISECOND
     | MINUTE | MONTH | PERCENT | POSITION | QUARTER | REPLACE | SECOND | STRING | TIME
     | TRY_CAST | VALUES | VARIANT | WEEK | WITHOUT | YEAR
+    ;
+
+unreservedKeywordMinusType
+    : COUNT | DAY | DAYOFWEEK | DAYOFYEAR | FILTER | FIRST | HOUR | LAST | MICROSECOND
+    | MILLISECOND | MINUTE | MONTH | PERCENT | POSITION | QUARTER | REPLACE | SECOND
+    | TRY_CAST | VALUES | WEEK | WITHOUT | YEAR
     ;
 
 reservedKeyword
