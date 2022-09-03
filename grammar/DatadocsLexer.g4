@@ -1,5 +1,4 @@
 lexer grammar DatadocsLexer;
-options { caseInsensitive=true; }
 
 /*
 
@@ -82,22 +81,21 @@ Examples: "hello", 'hello', 'he''llo', b'ab12', B"1\"2\n".
 
 Integer_Literal: (Digit+ | HexNumber);
 Float_Literal: (Digit+ Dot Digit* | Dot? Digit+ | HexNumber) Exponent?;
-Hex_Literal: ('0x' HexDigit+) Exponent?;
 
-fragment HexNumber: ('0x' HexDigit+);
-fragment Exponent: 'E' [+-]? Digit+;
-fragment HexDigit: [0-9a-f];
+fragment HexNumber: ('0' X HexDigit+);
+fragment Exponent: E [+-]? Digit+;
+fragment HexDigit: [0-9a-fA-F];
 fragment Digit: [0-9];
 
 
 String_Literal
-    : 'R'? (
+    : R ? (
        DQuoteNewlineEscape
      | SQuoteNewlineEscape
    );
 
 Bytes_Literal
-    : 'B' (
+    : B (
        DQuoteNewlineEscape
      | SQuoteNewlineEscape
     );
@@ -126,137 +124,138 @@ References: BigQuery: https://cloud.google.com/bigquery/docs/reference/standard-
 */
 
 // 4.1. RESERVED (Used)
-ALL:                            'ALL';
-AND:                            'AND';
-ANY:                            'ANY';
-ARRAY:                          'ARRAY';
-AS:                             'AS';
-ASC:                            'ASC';
-BETWEEN:                        'BETWEEN';
-BY:                             'BY';
-CASE:                           'CASE';
-CAST:                           'CAST';
-COLLATE:                        'COLLATE';
-CONTAINS:                       'CONTAINS';
-CROSS:                          'CROSS';
-CURRENT:                        'CURRENT';
-DESC:                           'DESC';
-DISTINCT:                       'DISTINCT';
-ELSE:                           'ELSE';
-END:                            'END';
-EXCEPT:                         'EXCEPT'|'EXCLUDE';
-EXISTS:                         'EXISTS';
-EXTRACT:                        'EXTRACT';
-FALSE:                          'FALSE';
-FOLLOWING:                      'FOLLOWING';
-FROM:                           'FROM';
-FULL:                           'FULL';
-GLOB:                           'GLOB';
-GROUP:                          'GROUP';
-GROUPING:                       'GROUPING';
-HAVING:                         'HAVING';
-IGNORE:                         'IGNORE';
-IF:                             'IF';
-IN:                             'IN';
-INNER:                          'INNER';
-INTERSECT:                      'INTERSECT';
-INTERVAL:                       'INTERVAL';
-IS:                             'IS';
-JOIN:                           'JOIN';
-LEFT:                           'LEFT';
-LIKE:                           'LIKE';
-LIMIT:                          'LIMIT';
-NOT:                            'NOT';
-NULL:                           'NULL';
-NULLS:                          'NULLS';
-OFFSET:                         'OFFSET';
-ON:                             'ON';
-OR:                             'OR';
-ORDER:                          'ORDER';
-OUTER:                          'OUTER';
-OVER:                           'OVER';
-PARTITION:                      'PARTITION';
-PRECEDING:                      'PRECEDING';
-QUALIFY:                        'QUALIFY';
-RANGE:                          'RANGE';
-RECURSIVE:                      'RECURSIVE';
-RESPECT:                        'RESPECT';
-RIGHT:                          'RIGHT';
-ROLLUP:                         'ROLLUP';
-ROW:                            'ROW';
-ROWS:                           'ROWS';
-SELECT:                         'SELECT';
-SOME:                           'SOME';
-STRUCT:                         'STRUCT';
-TABLESAMPLE:                    'TABLESAMPLE';
-THEN:                           'THEN';
-TO:                             'TO';
-TRUE:                           'TRUE';
-UNBOUNDED:                      'UNBOUNDED';
-UNION:                          'UNION';
-UNIQUE:                         'UNIQUE';
-UNNEST:                         'UNNEST';
-USING:                          'USING';
-WHEN:                           'WHEN';
-WHERE:                          'WHERE';
-WINDOW:                         'WINDOW';
-WITH:                           'WITH';
+ALL:                            A L L;
+AND:                            A N D;
+ANY:                            A N Y;
+ARRAY:                          A R R A Y;
+AS:                             A S;
+ASC:                            A S C;
+BETWEEN:                        B E T W E E N;
+BY:                             B Y;
+CASE:                           C A S E;
+CAST:                           C A S T;
+COLLATE:                        C O L L A T E;
+CONTAINS:                       C O N T A I N S;
+CROSS:                          C R O S S;
+CURRENT:                        C U R R E N T;
+DESC:                           D E S C;
+DISTINCT:                       D I S T I N C T;
+ELSE:                           E L S E;
+END:                            E N D;
+EXCEPT:                         E X C E P T | E X C L U D E;
+EXISTS:                         E X I S T S;
+EXTRACT:                        E X T R A C T;
+FALSE:                          F A L S E;
+FOLLOWING:                      F O L L O W I N G;
+FROM:                           F R O M;
+FULL:                           F U L L;
+GLOB:                           G L O B;
+GROUP:                          G R O U P;
+GROUPING:                       G R O U P I N G;
+HAVING:                         H A V I N G;
+IGNORE:                         I G N O R E;
+IF:                             I F;
+IN:                             I N;
+INNER:                          I N N E R;
+INTERSECT:                      I N T E R S E C T;
+INTERVAL:                       I N T E R V A L;
+IS:                             I S;
+JOIN:                           J O I N;
+LEFT:                           L E F T;
+LIKE:                           L I K E;
+LIMIT:                          L I M I T;
+NOT:                            N O T;
+NULL:                           N U L L;
+NULLS:                          N U L L S;
+OFFSET:                         O F F S E T;
+ON:                             O N;
+OR:                             O R;
+ORDER:                          O R D E R;
+OUTER:                          O U T E R;
+OVER:                           O V E R;
+PARTITION:                      P A R T I T I O N;
+PRECEDING:                      P R E C E D I N G;
+QUALIFY:                        Q U A L I F Y;
+RANGE:                          R A N G E;
+RECURSIVE:                      R E C U R S I V E;
+RESPECT:                        R E S P E C T;
+RIGHT:                          R I G H T;
+ROLLUP:                         R O L L U P;
+ROW:                            R O W;
+ROWS:                           R O W S;
+SELECT:                         S E L E C T;
+SOME:                           S O M E;
+STRUCT:                         S T R U C T;
+TABLESAMPLE:                    T A B L E S A M P L E;
+THEN:                           T H E N;
+TO:                             T O;
+TRUE:                           T R U E;
+UNBOUNDED:                      U N B O U N D E D;
+UNION:                          U N I O N;
+UNIQUE:                         U N I Q U E;
+UNNEST:                         U N N E S T;
+USING:                          U S I N G;
+WHEN:                           W H E N;
+WHERE:                          W H E R E;
+WINDOW:                         W I N D O W;
+WITH:                           W I T H;
 
 
 // 4.2. RESERVED (Currently Unused)
-fragment ANALYSE:               'ANALYSE';
-fragment ANALYZE:               'ANALYZE';                  
-fragment ASSERT_ROWS_MODIFIED:  'ASSERT_ROWS_MODIFIED';     
-fragment ASYMMETRIC:            'ASYMMETRIC';               
-fragment AT:                    'AT';                       
-fragment BOTH:                  'BOTH';                     
-fragment CHECK:                 'CHECK';                    
-fragment COLUMN:                'COLUMN';                   
-fragment CONSTRAINT:            'CONSTRAINT';               
-fragment CREATE:                'CREATE';
-fragment CUBE:                  'CUBE';                     
-fragment CURRENT_TIME:          'CURRENT_TIME';             
-fragment CURRENT_TIMESTAMP:     'CURRENT_TIMESTAMP';        
-fragment DEFAULT:               'DEFAULT';
-fragment DEFERRABLE:            'DEFERRABLE';               
-fragment DEFINE:                'DEFINE';                   
-fragment DO:                    'DO';                       
-fragment ENUM:                  'ENUM';                     
-fragment ESCAPE:                'ESCAPE';                   
-fragment FETCH:                 'FETCH';
-fragment FOR:                   'FOR';                      
-fragment FOREIGN:               'FOREIGN';                  
-fragment GRANT:                 'GRANT';
-fragment GROUPS:                'GROUPS';
-fragment HASH:                  'HASH';                     
-fragment INITIALLY:             'INITIALLY';
-fragment INTO:                  'INTO';                     
-fragment LATERAL:               'LATERAL';                  
-fragment LEADING:               'LEADING';                  
-fragment LOCALTIME:             'LOCALTIME';                
-fragment LOCALTIMESTAMP:        'LOCALTIMESTAMP';           
-fragment LOOKUP:                'LOOKUP';                   
-fragment MERGE:                 'MERGE';                    
-fragment MODIFIED:              'MODIFIED';                 
-fragment NATURAL:               'NATURAL';                  
-fragment NEW:                   'NEW';                      
-fragment NO:                    'NO';                       
-fragment OF:                    'OF';                       
-fragment ONLY:                  'ONLY';                     
-fragment PLACING:               'PLACING';                  
-fragment PRIMARY:               'PRIMARY';                  
-fragment PROTO:                 'PROTO';
-fragment REFERENCES:            'REFERENCES';
-fragment RESERVED_PREFIX:       ('DD'|'XL') ('_' [a-z0-9_]*)?;
-fragment RETURNING:             'RETURNING';
-fragment SET:                   'SET';
-fragment SYMMETRIC:             'SYMMETRIC';                
-fragment TABLE:                 'TABLE';                    
-fragment TRAILING:              'TRAILING';                 
-fragment TREAT:                 'TREAT';                    
-fragment USER:                  'USER';
-fragment VARIADIC:              'VARIADIC';                 
-fragment WITHIN:                'WITHIN';                   
+fragment ANALYSE:               A N A L Y S E;
+fragment ANALYZE:               A N A L Y Z E;
+fragment ASSERT_ROWS_MODIFIED:  A S S E R T '_' R O W S '_' M O D I F I E D;
+fragment ASYMMETRIC:            A S Y M M E T R I C;
+fragment AT:                    A T;
+fragment BOTH:                  B O T H;
+fragment CHECK:                 C H E C K;
+fragment COLUMN:                C O L U M N;
+fragment CONSTRAINT:            C O N S T R A I N T;
+fragment CREATE:                C R E A T E;
+fragment CUBE:                  C U B E;
+fragment CURRENT_TIME:          C U R R E N T '_' T I M E;
+fragment CURRENT_TIMESTAMP:     C U R R E N T '_' T I M E S T A M P;
+fragment DEFAULT:               D E F A U L T;
+fragment DEFERRABLE:            D E F E R R A B L E;
+fragment DEFINE:                D E F I N E;
+fragment DO:                    D O;
+fragment ENUM:                  E N U M;
+fragment ESCAPE:                E S C A P E;
+fragment FETCH:                 F E T C H;
+fragment FOR:                   F O R;
+fragment FOREIGN:               F O R E I G N;
+fragment GRANT:                 G R A N T;
+fragment GROUPS:                G R O U P S;
+fragment HASH:                  H A S H;
+fragment INITIALLY:             I N I T I A L L Y;
+fragment INTO:                  I N T O;
+fragment LATERAL:               L A T E R A L;
+fragment LEADING:               L E A D I N G;
+fragment LOCALTIME:             L O C A L T I M E;
+fragment LOCALTIMESTAMP:        L O C A L T I M E S T A M P;
+fragment LOOKUP:                L O O K U P;
+fragment MERGE:                 M E R G E;
+fragment MODIFIED:              M O D I F I E D;
+fragment NATURAL:               N A T U R A L;
+fragment NEW:                   N E W;
+fragment NO:                    N O;
+fragment OF:                    O F;
+fragment ONLY:                  O N L Y;
+fragment PLACING:               P L A C I N G;
+fragment PRIMARY:               P R I M A R Y;
+fragment PROTO:                 P R O T O;
+fragment REFERENCES:            R E F E R E N C E S;
+fragment RESERVED_PREFIX:       (D D|X L) ('_' [A-Za-z0-9_]*)?;
+fragment RETURNING:             R E T U R N I N G;
+fragment SET:                   S E T;
+fragment SYMMETRIC:             S Y M M E T R I C;
+fragment TABLE:                 T A B L E;
+fragment TRAILING:              T R A I L I N G;
+fragment TREAT:                 T R E A T;
+fragment USER:                  U S E R;
+fragment VARIADIC:              V A R I A D I C;
+fragment WITHIN:                W I T H I N;
+
 
 Other_Reserved_Keyword
   : ANALYSE
@@ -319,41 +318,43 @@ Other_Reserved_Keyword
 // For example, the keyword "BOOLEAN" may not be used as the name of a custom type,
 // because it is already the name of a type.
 // Note: INTERVAL, STRUCT, and ARRAY are RESERVED. GEOGRAPHY is via Constructor
-BOOLEAN:                        'BOOLEAN' | 'BOOL' ;
-INTEGER:                        'INTEGER' | 'INT';
-FLOAT:                          'FLOAT' | 'REAL';
-DECIMAL:                        'DECIMAL' | 'NUMERIC';
-STRING:                         'STRING' | 'TEXT' | 'VARCHAR';
-BYTES:                          'BYTES' | 'BINARY' | 'BLOB' | 'BYTEA';
-DATE:                           'DATE';
-TIME:                           'TIME';
-DATETIME:                       'DATETIME' | 'TIMESTAMP';
-JSON:                           'JSON';
-VARIANT:                        'VARIANT';
+BOOLEAN:                        B O O L E A N | B O O L;
+INTEGER:                        I N T E G E R | I N T;
+FLOAT:                          F L O A T | R E A L;
+DECIMAL:                        D E C I M A L | N U M E R I C;
+STRING:                         S T R I N G | T E X T | V A R C H A R;
+BYTES:                          B Y T E S | B I N A R Y | B L O B | B Y T E A;
+DATE:                           D A T E;
+TIME:                           T I M E;
+DATETIME:                       D A T E T I M E | T I M E S T A M P;
+JSON:                           J S O N;
+VARIANT:                        V A R I A N T;
 
-MICROSECOND:                    'MICROSECOND' 'S'?;
-MILLISECOND:                    'MILLISECOND' 'S'?;
-SECOND:                         'SECOND' 'S'?;
-MINUTE:                         'MINUTE' 'S'?;
-HOUR:                           'HOUR' 'S'?;
-DAY:                            'DAY' 'S'?;
-WEEK:                           'WEEK' 'S'?;
-MONTH:                          'MONTH' 'S'?;
-QUARTER:                        'QUARTER' 'S'?;
-YEAR:                           'YEAR' 'S'?;
-DAYOFWEEK:                      'DAYOFWEEK' | 'DOW';
-DAYOFYEAR:                      'DAYOFYEAR' | 'DOY';
+MICROSECOND:                    M I C R O S E C O N D S?;
+MILLISECOND:                    M I L L I S E C O N D S?;
+SECOND:                         S E C O N D S?;
+MINUTE:                         M I N U T E S?;
+HOUR:                           H O U R S?;
+DAY:                            D A Y S? ;
+WEEK:                           W E E K S?;
+MONTH:                          M O N T H S?;
+QUARTER:                        Q U A R T E R S?;
+YEAR:                           Y E A R S?;
+DAYOFWEEK:                      D A Y O F W E E K | D O W;
+DAYOFYEAR:                      D A Y O F Y E A R | D O Y;
 
-COUNT:                          'COUNT';
-FILTER:                         'FILTER';
-FIRST:                          'FIRST';
-LAST:                           'LAST';
-PERCENT:                        'PERCENT';
-POSITION:                       'POSITION';
-REPLACE:                        'REPLACE';
-TRY_CAST:                       'TRY_CAST' | 'SAFE_CAST';
-VALUES:                         'VALUES';
-WITHOUT:                        'WITHOUT';
+COUNT:                          C O U N T;
+FILTER:                         F I L T E R;
+FIRST:                          F I R S T;
+LAST:                           L A S T;
+PERCENT:                        P E R C E N T;
+POSITION:                       P O S I T I O N;
+REPLACE:                        R E P L A C E;
+TRY_CAST:                       T R Y '_' C A S T | S A F E '_' C A S T;
+VALUES:                         V A L U E S;
+WITHOUT:                        W I T H O U T;
+
+
 
 
 /*
@@ -374,7 +375,7 @@ Identifier
     ;
 
 fragment PureIdentifier
-    : [A-Z_] [A-Z_0-9]*
+    : [A-Za-z_] [A-Za-z_0-9]*
     ;
 
 fragment BQuoteQuoteEscape
@@ -393,3 +394,29 @@ White_Space
     : [ \t\r\n] -> skip
     ;
 
+fragment A: [aA];
+fragment B: [bB];
+fragment C: [cC];
+fragment D: [dD];
+fragment E: [eE];
+fragment F: [fF];
+fragment G: [gG];
+fragment H: [hH];
+fragment I: [iI];
+fragment J: [jJ];
+fragment K: [kK];
+fragment L: [lL];
+fragment M: [mM];
+fragment N: [nN];
+fragment O: [oO];
+fragment P: [pP];
+fragment Q: [qQ];
+fragment R: [rR];
+fragment S: [sS];
+fragment T: [tT];
+fragment U: [uU];
+fragment V: [vV];
+fragment W: [wW];
+fragment X: [xX];
+fragment Y: [yY];
+fragment Z: [zZ];
