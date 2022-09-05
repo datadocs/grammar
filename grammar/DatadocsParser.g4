@@ -108,7 +108,6 @@ tableItem
     | OpenParen selectStatement CloseParen                                          # subSelect
     | ((RANGE|GLOB|UNNEST|identifier (Dot (identifier|reservedKeyword))*)
                           OpenParen functionParams? CloseParen)                     # tableFunction
-    | OpenParen  valuesClause CloseParen                                            # valuesTable
     ;
 
 valuesClause:
